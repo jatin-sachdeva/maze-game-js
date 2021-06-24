@@ -18,9 +18,10 @@ const myEngine = Engine.create({
 const { world: myWorld } = myEngine;
 // rendering a window/canvas to the dom where the content will be displayed
 
-const width = 600;
-const height = 800;
-const cells = 6;
+const width = window.innerWidth - 40;
+const height = window.innerHeight - 40;
+const cellsRow = 5;
+const cellsCol = 6;
 const gameDiv = document.querySelector('#game');
 console.log(gameDiv);
 const myRender = Render.create({
@@ -28,7 +29,8 @@ const myRender = Render.create({
 	engine: myEngine, // which engine will be rendered
 	options: {
 		width,
-		height
+		height,
+		wireframes: false
 	}
 });
 Render.run(myRender); // renders the created render object on the screen
@@ -73,13 +75,13 @@ World.add(myWorld, walls);
 //STEP1. creating a grid of size n*n , creating verticals and horizontals and storing horzintal and vertical lines of seperation
 // in them.
 
-const grid = new Array(cells).fill(null).map(() => new Array(cells).fill(false));
-const verticals = new Array(cells).fill(null).map(() => new Array(cells - 1).fill(false));
-const horizontals = new Array(cells - 1).fill(null).map(() => new Array(cells).fill(false));
+const grid = new Array(cellsRow).fill(null).map(() => new Array(cellsCol).fill(false));
+const verticals = new Array(cellsRow).fill(null).map(() => new Array(cellsCol - 1).fill(false));
+const horizontals = new Array(cellsRow - 1).fill(null).map(() => new Array(cellsCol).fill(false));
 
 //STEP2. selecting a random cell to start with
-const initialRow = Math.floor(Math.random() * 3);
-const initialCol = Math.floor(Math.random() * 3);
+const initialRow = Math.floor(Math.random() * cellsRow);
+const initialCol = Math.floor(Math.random() * cellsCol);
 
 //utility function to shuffle the maze
 const shuffle = (ar) => {
@@ -118,7 +120,7 @@ function setupMaze(row, col) {
 		let [ newRow, newCol, direction ] = neighbour;
 
 		// checking if the direction is out of bounds
-		if (newRow >= cells || newRow < 0 || newCol >= cells || newCol < 0) {
+		if (newRow >= cellsRow || newRow < 0 || newCol >= cellsCol || newCol < 0) {
 			continue;
 		}
 		// if the cell is already visited check for new direction
@@ -143,8 +145,9 @@ function setupMaze(row, col) {
 }
 setupMaze(initialRow, initialCol);
 
-const unitLength = width / cells; // getting height and width of one cell
-let mazeLineWidth = cells * 0.8;
+const unitLengthX = width / cellsCol;
+const unitLengthY = height / cellsRow;
+let mazeLineWidth = 3;
 
 // contructing horizontal walls
 
@@ -152,13 +155,16 @@ horizontals.forEach((row, rowIndex) => {
 	row.forEach((noWall, colIndex) => {
 		if (!noWall) {
 			const wall = Bodies.rectangle(
-				colIndex * unitLength + unitLength / 2,
-				rowIndex * unitLength + unitLength,
-				unitLength,
+				colIndex * unitLengthX + unitLengthX / 2,
+				rowIndex * unitLengthY + unitLengthY,
+				unitLengthX,
 				mazeLineWidth,
 				{
 					label: 'walls',
-					isStatic: true
+					isStatic: true,
+					render: {
+						fillStyle: 'red'
+					}
 				}
 			);
 			World.add(myWorld, wall);
@@ -171,13 +177,16 @@ verticals.forEach((row, rowIndex) => {
 	row.forEach((noWall, colIndex) => {
 		if (!noWall) {
 			const wall = Bodies.rectangle(
-				colIndex * unitLength + unitLength,
-				rowIndex * unitLength + unitLength / 2,
+				colIndex * unitLengthX + unitLengthX,
+				rowIndex * unitLengthY + unitLengthY / 2,
 				mazeLineWidth,
-				unitLength,
+				unitLengthY,
 				{
 					label: 'walls',
-					isStatic: true
+					isStatic: true,
+					render: {
+						fillStyle: 'red' // fill the walls with color , first make wireframe set to false in render
+					}
 				}
 			);
 			World.add(myWorld, wall);
@@ -186,14 +195,24 @@ verticals.forEach((row, rowIndex) => {
 });
 
 // creating the target
-const target = Bodies.rectangle(width - unitLength / 2, height - unitLength / 2, unitLength * 0.6, unitLength * 0.6, {
-	isStatic: true,
-	label: 'goal' // tlabels this rectangle body as goal
-});
+const target = Bodies.rectangle(
+	width - unitLengthX / 2,
+	height - unitLengthY / 2,
+	unitLengthX * 0.6,
+	unitLengthY * 0.6,
+	{
+		isStatic: true,
+		label: 'goal', // tlabels this rectangle body as goal
+		render: {
+			fillStyle: 'green'
+		}
+	}
+);
 World.add(myWorld, target);
 
 // creating the ball
-const ball = Bodies.circle(unitLength / 2, unitLength / 2, unitLength / 4, {
+const radius = Math.min(unitLengthX, unitLengthY) / 4;
+const ball = Bodies.circle(unitLengthX / 2, unitLengthY / 2, radius, {
 	label: 'ball' // labels this circular body as ball
 });
 World.add(myWorld, ball);
@@ -238,7 +257,7 @@ Events.on(myEngine, 'collisionStart', (e) => {
 		const { label: body1 } = pair.bodyB;
 		if (body1 == 'ball' && body2 == 'goal') {
 			console.log('win'); // every collide has a special id
-			document.querySelector('#win').innerText = 'Congratulations';
+			document.querySelector('#win').innerText = 'You Won';
 
 			// create an animation where everything falls off
 			const bodies = myWorld.bodies; // select all bodies

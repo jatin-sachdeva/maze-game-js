@@ -1,0 +1,14 @@
+#creating a rectangular maze:
+
+- Changes to be made:
+    --Should have individual cells variable for horizontal and vertical ie grid array with diff rows and cols
+    --Should have individual unitLength variable for a cell's height and width
+
+- Process of making changes:
+    --horizontal and vertical cells
+        --- will create variables representing rows and cols of the grid array
+        --- will update the cells with cellsRow and cellsCol
+        --- new grid, horizontals and verticals array will be constructed
+    --unitLength updation
+        --- a new unitlengthX and unitlengthY will be made
+        --- walls will now be formed corr to these new unitlengthX and unitlengthY

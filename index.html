@@ -2,11 +2,24 @@
 <html>
     <head>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.js" integrity="sha512-TDWaR4Jcfh+czIclPCKBKsZvP3+R8jyYdHSV0bEdi/drluprR/2nx6jCpirVB21A0O86coRGKO033FR2/r4s2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <style>
+            #win{
+                color:wheat;
+                position:absolute;
+                align-content: center;
+                top:40%;
+                left:35%;
+                
+                font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                font-size: 4vmax;
+            }
+        </style>
     </head>
     <body>
-        <div id="game" style="margin:auto;text-align: center;">
+        <div id="game" style="width:100%">
+            <h2 id="win"></h2>
         </div>
-        <h2 id="win" style="margin-top: 2vmax;margin:auto;font-size: 3vmax;text-align: center;"></h2>
+        
         <script src="app.js"></script>
         </body>
 </html>
